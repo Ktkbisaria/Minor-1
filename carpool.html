@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carpool</title>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+     <!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+ crossorigin=""></script>
+</head>
+<body>
+    <div class="row">
+        <div class="col s2">
+            <!-- <ul id="slide-out" class="sidenav sidenav-fixed">
+                <li><div class="user-view">
+                <div class="background">
+                    <img src="./DeepDream_Sample_2.jpg">
+                </div>
+                <a href="#user"><img class="circle" src="./mimi.jpeg"></a>
+                <a href="#name"><span class="white-text name">John Doe</span></a>
+                <a href="#email"><span class="white-text email">jdandturk@gmail.com</span></a>
+                </div></li>
+                <li><a href="#!"><i class="material-icons">cloud</i>First Link With Icon</a></li>
+                <li><a href="#!">Second Link</a></li>
+                <li><div class="divider"></div></li>
+                <li><a class="subheader">Subheader</a></li>
+                <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
+            </ul> -->
+        </div>
+        <div class="col s8">
+            <div class="row">
+                <h1>Carpool Here!</h1>
+                <input type="checkbox" id="switchii" onchange="changestate()" placeholder="" />
+                <label for="switchii">Carpool</label>
+            </div>
+            <div id="mycarpoolmap">
+            </div>
+        </div>
+        <div class="col s2">
+        </div>
+    </div>
+    <style>
+    #mycarpoolmap { height: 580px; }
+
+    input[type=checkbox]{
+        height: 0;
+        width: 0;
+        visibility: hidden;
+        }
+
+        label {
+        cursor: pointer;
+        text-indent: -9999px;
+        width: 80px;
+        height: 40px;
+        background: grey;
+        display: block;
+        border-radius: 100px;
+        position: relative;
+        }
+
+        label:after {
+        content: '';
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 30px;
+        height: 30px;
+        background: #fff;
+        border-radius: 90px;
+        transition: 0.3s;
+        }
+
+        input:checked + label {
+        background: #bada55;
+        }
+
+        input:checked + label:after {
+        left: calc(100% - 5px);
+        transform: translateX(-100%);
+        }
+
+        label:active:after {
+        width: 30px;
+        }
+
+    </style>
+    <script>
+        let state = true;
+         function changestate(){
+
+         }
+        // Function to get user location and display it on the map
+        function syncData(latitude, longitude) {
+            // Data to be sent in the request body
+            const data = {
+                latt: latitude,
+                long: longitude,
+                _t : localStorage.getItem('_t')
+            };
+
+            // Configuring the fetch request
+            fetch('http://localhost:3000/setUserLocation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(function(response) {
+                if (response.ok) {
+                    console.log('User location data sent successfully');
+                    // You can perform actions after successful data sending
+                } else {
+                    console.log('Failed to send user location data');
+                    // Handle error cases here
+                }
+            })
+            .catch(function(error) {
+                console.error('Error sending user location data:', error);
+                // Handle errors that occurred during the fetch request
+            });
+        }
+
+        function getUserLocationAndDisplay(map) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        var userLat = position.coords.latitude;
+                        var userLng = position.coords.longitude;
+
+                        // Creating a marker for user's location
+                        var userMarker = L.marker([userLat, userLng]).addTo(map);
+                        userMarker.bindPopup("Your Location").openPopup();
+
+                        // Set the map view to the user's location
+                        map.setView([userLat, userLng], 20);
+                        // Update the database and server for this 
+                        syncData(userLat,userLng);
+                    },
+                    function (error) {
+                        console.log("Error getting user location:", error.message);
+                    }
+                );
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+            }
+        }
+        async function gettt() {
+            const url = 'http://localhost:3000/getUsersLocation';
+            const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTc0ZWExZWRkMDMxN2RlY2E5YzRlZWEiLCJpYXQiOjE3MDIxNjA5NDEsImV4cCI6MTcwMjI0NzM0MX0.C99Sxteh5wkjnAMYbdYv1vHu5pH0LV8to2fgKz-8tx8';
+
+            const body = {
+                _t: token,
+            };
+
+            try {
+                const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body),
+                });
+
+                if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                data.forEach(d => {
+                    console.log(d);
+                    llc = [d.currentUserLatt,d.currentUserLong]
+                    // Create a custom icon
+                    
+                    var updatedUserMarker = L.marker(llc).addTo(map);
+                    updatedUserMarker.bindPopup(`Name : ${d.name}\nPhone 📱 : ${d.phone}`).openPopup();
+
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+            }
+        // Function to update user location from '/getuserlocation' and add a marker
+        function updateUsersLocation(map) {
+            d = {
+            "_t": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTc0ZWExZWRkMDMxN2RlY2E5YzRlZWEiLCJpYXQiOjE3MDIxNjA5NDEsImV4cCI6MTcwMjI0NzM0MX0.C99Sxteh5wkjnAMYbdYv1vHu5pH0LV8to2fgKz-8tx8"
+            }
+            fetch('/getUsersLocation',{method: 'POST', body : JSON.stringify(d)})
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    console.log(data);
+                    // // Creating a marker for updated user location
+                    var updatedUserMarker = L.marker(userLocation).addTo(map);
+                    updatedUserMarker.bindPopup("Updated Location").openPopup();
+
+                    // You can optionally set the map view to the updated location
+                    map.setView(userLocation, 14);
+                })
+                .catch(function (error) {
+                    console.log("Error fetching user location:", error);
+                });
+        }
+
+        var map = L.map('mycarpoolmap').setView([30.41597398376594, 77.9668687834287], 20);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        getUserLocationAndDisplay(map);
+        gettt();
+    </script>
+</body>
+</html>

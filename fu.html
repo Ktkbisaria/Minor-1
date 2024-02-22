@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Quiz</title>
+  <style>
+    body {
+      display: flex;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 0;
+      padding: 0;
+      background-image: url("pexels-frank-cone-2258536.jpg");
+      backdrop-filter: opacity(70%);
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+  
+  
+
+    #container {
+      width: 80vh;
+      height: 50vh;
+      max-width: 600px;
+      margin: 20vh auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    select, button {
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #result {
+      margin-top: 20px;
+    }
+    #Next{
+      width: 20vh;
+    }
+    #answers{
+      margin-top: 5vh;
+      width: 40vh;
+      background-color: rgb(224, 214, 214);
+    }
+  </style>
+</head>
+<body>
+
+<div id="container">
+  <div style="font-size: large;" id="quiz-container"></div>
+  <div id="result" style="display: none;">
+    <h3>Your Score: <span id="score">Calculating...</span></h3>
+  </div>
+</div>
+
+<script>
+  const questions = [ {
+      id: 1,
+      question: "Do you consume dairy products?",
+      options: ["Yes", "No"],
+      nextQuestion: {
+        Yes: 2,
+        No: 4,
+      },
+    },
+  
+    {
+      id: 2,
+      question: "How often do you consume dairy products?",
+      options: ["OnceAWeek", "TwiceAWeek", "Everyday", "OnceAMonth", "TwiceAMonth","never"],
+      nextQuestion:  {
+        never: 4,
+        OnceAWeek: 3,
+       TwiceAWeek: 3,
+         Everyday: 3,
+        OnceAMonth: 3,
+        TwiceAMonth: 3,
+      },
+    },
+    {
+      id: 3,
+      question: "What dairy products do you consume?",
+      options: ["Milk", "Cheese", "Butter", "Yogurt", "IceCream"],
+      nextQuestion: {Milk: 4, 
+        Cheese: 4,
+      Butter: 4,
+       Yogurt: 4,
+      IceCream: 4,
+    },
+  },
+    {
+      id: 4,
+      question: "Do you eat meat?",
+      options: ["Yes", "No"],
+      nextQuestion: {
+        Yes: 5,
+        No: 7,
+      },
+    },
+    {
+      id: 5,
+      question: "What meat do you eat?",
+      options: ["Mutton", "Chicken", "Eggs", "Fish"],
+      nextQuestion:  {Mutton: 6, 
+        Chicken: 6,
+         Eggs: 6,
+          Fish: 6,},
+    },
+    {
+      id: 6,
+      question: "How much meat do you consume (in kilograms)? In a week",
+      options: [ "Around100g", "Around250g", "Around500g", "MoreThan500g"],
+      nextQuestion: { 
+        Around100g: 7, 
+        Around250g: 7,
+        Around500g: 7, 
+      MoreThan500g: 7,
+    },
+    },
+    {
+      id: 7,
+      question: "How many flights do you take in a year?",
+      options: ["0-3", "6-9", "10-15", "20-25","more than 25"],
+      nextQuestion: {
+          "0-3": 8,
+         "6-9": 8,
+          "10-15": 8,
+           "20-25": 8,
+          "more than 25": 8,
+        },
+    },
+    {
+      id: 8,
+      question: "What is the average duration of those flights (in hours)?",
+      options: ["0-3", "3-6", "6-9", "9-12"],
+      nextQuestion: {"0-3": 9, "3-6": 9,  "6-9": 9, 
+      "9-12": 9,},
+    },
+    {
+      id: 9,
+      question: "How much is your daily commute (in kilometers)?",
+      options: ["0-10 km", "10-20 km", "20-30 km", "More"],
+      nextQuestion: {"0-10 km": 10,
+       "10-20 km": 10,
+        "20-30 km": 10,
+         "More": 10,
+    },
+  },
+    {
+      id: 10,
+      question: "What vehicle do you use?",
+      options: ["Fourwheeler", "Twowheeler", "None"],
+      nextQuestion: {
+        Fourwheeler: 11,
+        Twowheeler: 16,
+        None: 20,
+      },
+    },
+    // ... (previous code)
+
+{
+  id: 11,
+  question: "What is the fuel type for your Fourwheeler?",
+  options: ["Petrol", "Diesel", "electric"],
+  nextQuestion: {Petrol: 12, Diesel: 12, electric: 12
+},
+},
+
+{
+  id: 12,
+  question: "What type of car do you have?",
+  options: ["Hatchback", "SUV", "Sedan", "Others"],
+  nextQuestion: { Hatchback:13, SUV:14, Sedan:15, }, 
+},
+{
+  id: 13,
+  question: "If you have a Hatchback, what is the engine capacity?",
+  options: ["< 1000CC", "< 1400CC", "< 1600CC"],
+  nextQuestion: 14,
+},
+{
+  id: 14,
+  question: "If you have an SUV, what is the engine capacity?",
+  options: ["< 1600CC", "< 2000CC", "< 2500CC", "< 3000CC"],
+  nextQuestion: 15,
+},
+{
+  id: 15,
+  question: "If you have a Sedan, what is the engine capacity?",
+  options: ["< 1400CC", "< 1600CC", "< 2000CC", "< 2500CC", "< 3000CC"],
+  nextQuestion: 16,
+},
+{
+  id: 16,
+  question: "What is the fuel type for your Twowheeler?",
+  options: ["Petrol", "Diesel", "Electric"],
+  nextQuestion: 17,
+},
+{
+  id: 17,
+  question: "What type of Twowheeler do you have?",
+  options: ["Motorcycle", "Scooty"],
+  nextQuestion: 18,
+},
+{
+  id: 18,
+  question: "If you have a Motorcycle, what is the engine capacity?",
+  options: ["< 100CC", "< 125CC", "< 135CC", "< 200CC", "< 300CC", "< 500CC", "500CC"],
+  nextQuestion: 19,
+},
+{
+  id: 19,
+  question: "If you have a Scooty, what is the engine capacity?",
+  options: ["< 110CC", "< 150CC"],
+  nextQuestion: 20,
+},
+    // ... (your questions array)
+  ];
+
+  let currentQuestionIndex = 0;
+  let answers = {};
+
+  function displayQuestion() {
+    const currentQuestion = questions[currentQuestionIndex];
+    const quizContainer = document.getElementById("quiz-container");
+
+    const questionHTML = `
+      <label><h2>${currentQuestion.question}</h2></label>
+      <select id="answers">
+        <option value="">Select an option</option>
+        ${currentQuestion.options.map(option => `<option value="${option}">${option}</option>`).join("")}
+      </select>
+      <br>
+      <button id="Next">Next</button>
+    `;
+
+    quizContainer.innerHTML = questionHTML;
+
+    // Attach the nextQuestion function to the "Next" button
+    document.getElementById("Next").addEventListener("click", nextQuestion);
+  }
+
+  function nextQuestion() {
+    const selectedOption = document.getElementById("answers").value;
+    answers[`Question${currentQuestionIndex + 1}`] = selectedOption;
+
+    const currentQuestion = questions[currentQuestionIndex];
+    const nextQuestion = currentQuestion.nextQuestion[selectedOption];
+
+    if (nextQuestion !== undefined) {
+      currentQuestionIndex = Array.isArray(nextQuestion) ? nextQuestion[0] : nextQuestion - 1;
+      displayQuestion();
+    } else {
+      calculateScore();
+    }
+  }
+
+  function calculateTotalCarbonEmission(answers) {
+    let totalEmission = 0;
+    const carbonEmissions = {
+      // Define your carbon emissions values here
+      Yes: 10,
+      No: 5,
+      OnceAWeek: 5,
+      TwiceAWeek: 10,
+      Everyday: 15,
+
+      Milk: 3,
+  Cheese: 4,
+  Butter: 2,
+  Yogurt: 1,
+  IceCream: 5,
+
+  Yes_Meat: 10,
+  No_Meat: 0,
+
+  Mutton: 5,
+  Chicken: 4,
+  Eggs: 2,
+  Fish: 3,
+
+  Around100g: 2,
+  Around250g: 4,
+  Around500g: 6,
+  MoreThan500g: 8,
+
+  "0-3": 1,
+  "6-9": 5,
+  "10-15": 10,
+  "20-25": 15,
+  "more than 25": 20,
+
+  "0-3_hours": 1,
+  "3-6_hours": 3,
+  "6-9_hours": 6,
+  "9-12_hours": 9,
+
+  "0-10_km": 1,
+  "10-20_km": 2,
+  "20-30_km": 3,
+  "More": 4,
+
+  Fourwheeler: {
+    Petrol: {
+      "< 1000CC": 10,
+      "< 1400CC": 12,
+      "< 1600CC": 15,
+    },
+    Diesel: {
+      "< 1000CC": 8,
+      "< 1400CC": 10,
+      "< 1600CC": 12,
+    },
+    electric: 0,
+  },
+
+  Twowheeler: {
+    Petrol: {
+      "< 100CC": 5,
+      "< 125CC": 7,
+      "< 135CC": 8,
+      "< 200CC": 10,
+      "< 300CC": 12,
+      "< 500CC": 15,
+      "500CC": 20,
+    },
+    Diesel: {
+      "< 100CC": 3,
+      "< 125CC": 5,
+      "< 135CC": 6,
+      "< 200CC": 8,
+      "< 300CC": 10,
+      "< 500CC": 12,
+      "500CC": 18,
+    },
+    electric: 0,
+  },
+
+  Motorcycle: {
+    "< 100CC": 3,
+    "< 125CC": 4,
+    "< 135CC": 5,
+    "< 200CC": 7,
+    "< 300CC": 9,
+    "< 500CC": 11,
+    "500CC": 15,
+  },
+
+  Scooty: {
+    "< 110CC": 2,
+    "< 150CC": 4,
+  },
+
+  None: 0,
+  // ... (you can continue adding emissions for other options)
+
+      // ... (add emissions for other options)
+    };
+
+    for (const key in answers) {
+      if (answers.hasOwnProperty(key)) {
+        const selectedOption = answers[key];
+        const emission = carbonEmissions[selectedOption];
+
+        if (emission !== undefined) {
+          totalEmission += emission;
+        }
+      }
+    }
+
+    return parseInt(totalEmission);
+    
+  }
+
+  function calculateScore() {
+    const totalEmission = calculateTotalCarbonEmission(answers);
+    document.getElementById("result").style.display = "block";
+    document.getElementById("score").innerText = totalEmission;
+    console.log(totalEmission)
+    createCfcWithScore(parseInt(totalEmission+""));
+  }
+  async function createCfcWithScore(score) {
+  try {
+    const token = localStorage.getItem('_t'); // Get the token from localStorage
+    if (!token) {
+      console.error('Token not found. User is not authenticated.');
+      return;
+    }
+
+    const requestBody = {
+      score: score,
+      _t : token
+    };
+
+    const response = await fetch('/createCfc', {
+      method: 'POST',
+      headers: {
+        // 'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      console.log('Cfc created and added to user _cfc array:', responseData.msg);
+      alert("Quiz Completed. Thank You!");
+      window.open('/homepage','_self');
+    } else if (response.status === 404) {
+      console.error('User not found.');
+    } else {
+      console.error('Failed to create Cfc:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+  // Initial display
+  displayQuestion();
+</script>
+
+</body>
+</html>

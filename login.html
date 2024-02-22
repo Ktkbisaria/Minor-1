@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="parent clearfix">
+        <div class="bg-illustration">
+          
+    
+          <div class="burger-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+    
+        </div>
+        
+        <div class="login">
+          <div class="container">
+            <h1>Login to access to<br />your account</h1>
+        
+            <div class="login-form">
+              <fom id="MainForm">
+                <input type="email" placeholder="E-mail Address" id="lemail">
+                <input type="password" placeholder="Password" id="lpass">
+    
+                <div class="remember-form">
+                  <input type="checkbox">
+                  <span>Remember me</span>
+                </div>
+                <div class="forget-pass">
+                  <a href="#">Forgot Password ?</a>
+                </div>
+    
+                <button id="login" onclick="loginUser()">LOG-IN</button>
+    
+              </fom>
+            </div>
+        
+          </div>
+        </div>
+      </div> 
+      <script>
+        async function loginUser() {
+          const loginData = {
+            email: document.getElementById('lemail').value, // Replace with the actual email
+            password: document.getElementById('lpass').value, // Replace with the actual password
+          };
+
+          try {
+            const response = await fetch('/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(loginData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+              console.log('Login successful:', data);
+              if (data._t) {
+                
+                localStorage.setItem('_t', data._t);
+                console.log('Token stored in localStorage.');
+                window.open('/homepage', '_self')
+              }
+            } else {
+              console.error('Login failed:', data.msg);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+          }
+        }
+      </script>
+</body>
+</html>
